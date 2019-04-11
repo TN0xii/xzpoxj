@@ -86,10 +86,10 @@ bot.on("message", async message => {
 	.setColor(purple)
     .addField("ID", message.guild.id, false)
     .addField("Propriétaire du Serveur", message.guild.owner.user.tag)
-    .addField("Membres)", message.guild.members.size, true)
+    .addField("Membres", message.guild.members.size, true)
     .addField("Région", message.guild.region, true)
     .addField("Création", message.guild.createdAt, true)
-    .addField("Roles", message.guild._sortedRoles.map(r => r.name).reverse().join(", "), false)
+    .addField("Rôles", message.guild._sortedRoles.map(r => r.name).reverse().join(", "), false)
 
     return message.channel.send(serverembed);
   }
@@ -214,7 +214,7 @@ bot.on("message", async message => {
 	.setDescription("Commandes du Bot")
     .setColor(purple)
     .addField("Server Informations", "`n!serverinfo`", true)
-	.addField("Bot Informations", "`n!botinfo`", true)
+	  .addField("Bot Informations", "`n!botinfo`", true)
 	.setFooter(`Les informations sont restreinctes et peuvent être améliorées par le future`, bot.user.displayAvatarURL);
 	
 	return message.channel.send(HelpI);
@@ -225,7 +225,8 @@ bot.on("message", async message => {
 	.setDescription("Commandes du Bot")
     .setColor(purple)
     .addField("Faire parler le Bot", "`n!say` message", true)
-	.addField("Envoyer un MP via le Bot", "`n!mp` @user message", true)
+    .addField("Envoyer un MP via le Bot", "`n!mp` @user message", true)
+    .addField("Effacer des Messages", "`n!clear` amount_messages", true)
 	.setFooter(`Vous devrez posséder certaines permissions pour effectuer ces commandes`, bot.user.displayAvatarURL);
 	
 	return message.channel.send(HelpM);
@@ -236,7 +237,7 @@ bot.on("message", async message => {
 	.setDescription("Commandes du Bot")
     .setColor(purple)
     .addField("Exclure", "`n!kick` @user reason", true)
-	.addField("Bannir", "`n!ban` @user reason", true)
+	  .addField("Bannir", "`n!ban` @user reason", true)
 	.setFooter(`Les raisons sont visibles dans le salon #logs`, bot.user.displayAvatarURL);
 	
 	return message.channel.send(HelpA);
@@ -271,6 +272,9 @@ bot.on("message", async message => {
 	.addField("Bisous", "`n!kiss` @user", true)
 	.addField("Baffe", "`n!slap` @user", true)
 	.addField("Manger", "`n!feed` @user", true)
+	.addField("Caresses", "`n!pat` @user", true)
+	.addField("Nekos", "`n!neko`", true)
+	.addField("Rire discret", "`n!smug`", true)
 	.addField("LEWD Neko (:underage:)", "`n!nekolewd`", true)
 	.addField("Hentai (:underage:)", "`n!hentai`", true)
 	.addField("Loli (:underage: !!!)", "`n!loli`", true)
@@ -325,7 +329,8 @@ bot.on("message", async message => {
   }
   
   if(cmd === `${prefix}nekolewd`) {
-
+	if (!message.channel.nsfw) return message.reply("tu peux utiliser cette commande seulement dans un salon NSFW !");
+	  
     const {body} = await superagent
     .get(`https://nekos.life/api/v2/img/lewd`);
 
@@ -362,6 +367,7 @@ bot.on("message", async message => {
   }
   
   if(cmd === `${prefix}hentai`) {
+	if (!message.channel.nsfw) return message.reply("tu peux utiliser cette commande seulement dans un salon NSFW !");
 	  
     const {body} = await superagent
     .get(`https://nekos.life/api/v2/img/hentai`);
@@ -374,14 +380,68 @@ bot.on("message", async message => {
     return message.channel.send(hentaiEmbed);
   }
   
+  if(cmd === `${prefix}neko`) {
+	  
+    const {body} = await superagent
+    .get(`https://nekos.life/api/v2/img/neko`);
+
+    let nekoEmbed = new Discord.RichEmbed()
+    .setDescription(`Nyan :cat: !`)
+    .setImage(body.url)
+    .setColor(purple)
+
+    return message.channel.send(nekoEmbed);
+  }
+  
+  if(cmd === `${prefix}pat`) {
+	let hugUser = message.guild.member(message.mentions.users.first() || message.guild.members.get(args[0]));
+    if(!hugUser) return message.reply("Tu dois mentionner quelqu'un pour utiliser cette commande.");
+	  
+    const {body} = await superagent
+    .get(`https://nekos.life/api/v2/img/pat`);
+
+    let patEmbed = new Discord.RichEmbed()
+    .setDescription(`**${message.author.username}** a caressé **${message.mentions.users.first().username}**! :3`)
+    .setImage(body.url)
+    .setColor(purple)
+
+    return message.channel.send(patEmbed);
+  }
+  
+  if(cmd === `${prefix}smug`) {
+	  
+    const {body} = await superagent
+    .get(`https://nekos.life/api/v2/img/smug`);
+
+    let smugEmbed = new Discord.RichEmbed()
+    .setDescription(`Hehehee... :smirk: !`)
+    .setImage(body.url)
+    .setColor(purple)
+
+    return message.channel.send(smugEmbed);
+  }
+  
+  if(cmd === `${prefix}cheh`) {
+	  
+    let body = {"url":"https://media.tenor.com/images/d95b80b9f5dab49bffdda635341fb8d5/tenor.gif"}
+
+    let chehEmbed = new Discord.RichEmbed()
+    .setDescription(`CHEH !`)
+    .setImage(body.url)
+    .setColor(purple)
+
+    return message.channel.send(chehEmbed);
+  }
+  
   if(!coins[message.author.id]){
     coins[message.author.id] = {coins: 0};
   }
 
-  let coinAmt = Math.floor(Math.random() * 7) + 1;
-  let baseAmt = Math.floor(Math.random() * 7) + 1;
+  if(!cmd === `${prefix}money`) {
+	let coinAmt = Math.floor(Math.random() * 7) + 1;
+	let baseAmt = Math.floor(Math.random() * 7) + 1;
 
-  coins[message.author.id] = {coins: coins[message.author.id].coins + coinAmt};
+	coins[message.author.id] = {coins: coins[message.author.id].coins + coinAmt}; }
   
   fs.writeFile("./coins.json", JSON.stringify(coins), (err) => {
     if (err) console.log(err)
@@ -406,46 +466,26 @@ bot.on("message", async message => {
   }
   
   if(cmd === `${prefix}pay`) {
-	if(!coins[message.author.id]){
-		return message.reply("Tu n'as pas d'argent")
-	}
-
+	if(!coins[message.author.id]){return message.reply("Tu n'as pas d'argent")}
 	let pUser = message.guild.member(message.mentions.users.first()) || message.guild.members.get(args[0]);
 	let nombre = args.slice(1).join(" ");
-	
-	if(!coins[pUser.id]){
-		coins[pUser.id] = {coins: 0};
-	}
-	
+	if(!coins[pUser.id]){coins[pUser.id] = {coins: 0};}
 	if (isNaN(parseInt(args[1]))) return message.reply("Tu dois mettre le montant !")
-
+	if(args[1] < 0) return message.reply("Tu ne peux pas envoyer un montant négatif !")
+	if(parseInt(args[1]) === 0) return message.reply("Tu ne peux pas envoyer un montant nul !")
 	let pCoins = coins[message.guild.member(message.mentions.users.first()).id].coins;
 	let sCoins = coins[message.author.id].coins;
-	
 	if(pUser.id === message.author.id) {
 	return message.channel.send(`Tu ne peux pas te donner de l'argent à toi même`); }
-
 	else {
 		if(sCoins >= nombre) {
-			coins[message.author.id] = {
-				coins: sCoins - parseInt(args[1])
-			};
-
-			coins[pUser.id] = {
-				coins: pCoins + parseInt(args[1])
-			};
-
+			coins[message.author.id] = {coins: sCoins - parseInt(args[1])};
+			coins[pUser.id] = {coins: pCoins + parseInt(args[1])};
 			message.channel.send(`${message.author} a donné ${args[1]}$ à ${pUser}.`);
-
-			fs.writeFile("./coins.json", JSON.stringify(coins), (err) => {
-				if(err) cosole.log(err)
-			});
-	
+			fs.writeFile("./coins.json", JSON.stringify(coins), (err) => {if(err) cosole.log(err)});
 			return
 		}
-		else {
-			return message.reply("Tu n'as pas assez d'argent");
-		}
+		else {return message.reply("Tu n'as pas assez d'argent");}
 	}
   }
   
@@ -516,6 +556,9 @@ bot.on("message", async message => {
   
   if(cmd === `${prefix}daily`) {
 	if(cooldown.has(message.author.id)){
+		fs.writeFile("./cooldown.json", JSON.stringify(cdseconds), (err) => {
+			if (err) console.log(err)
+		});
 		return message.reply("Tu dois attendre 1 jour avant de pouvoir refaire cette commande !")
     }
 	coins[message.author.id] = {coins: coins[message.author.id].coins + parseInt(500)};
@@ -535,7 +578,9 @@ bot.on("message", async message => {
   });
   
   if(cmd === `${prefix}rep`) {
+	if(!args[0]) return message.channel.send("Tu dois mentionner quelqu'un !");
 	let repUser = message.guild.member(message.mentions.users.first()) || message.guild.members.get(args[0]);
+	if(!repUser) return message.channel.send("Tu dois mentionner la personne en question !");
 	if(!rep[repUser]) {
 		rep[repUser] = {rep: 0};
 	}
@@ -559,18 +604,28 @@ bot.on("message", async message => {
 		.setAuthor(message.author.username)
 		.setColor(purple)
 		.addField("Ton nombre de Réputation", uReps)
-		.setFooter(message.author.displayAvatarURL)
+		.setFooter("Les Reps servent à rien mais c'est drôle", message.author.displayAvatarURL)
 		.setTimestamp()
 	return message.channel.send(repsEmbed);
   }
   
-  fs.writeFile("./cooldown.json", JSON.stringify(cooldown), (err) => {
-	if (err) console.log(err)
-  });
+  if(cmd === `${prefix}clear`) {
+	if(!message.guild.member(message.author).hasPermission("ADMINISTRATOR") && (!message.author.id ==='300669538674933761')) return message.channel.send("Vous n'avez pas la permission d'utiliser cette commande !").then(msg => {msg.delete(2500)});
+    let clearargs = args.join(" ");
+	let Clear = 1 + parseInt(clearargs);
 
-  fs.writeFile("./cooldownRep.json", JSON.stringify(cooldownRep), (err) => {
-	if (err) console.log(err)
-  });
+	if(!args[0]) return message.channel.send("Tu n'as pas précisé le nombre de messages à supprimer.").then(msg => {msg.delete(2000)});
+	if(Clear >= 100) return message.channel.send("Tu ne peux pas supprimer plus de 100 messages en même temps").then(msg => {msg.delete(2000)});
+	if(Clear === 1) { return message.delete().catch().then(() => {message.channel.send("Tu ne peux pas supprimer 0 message").then(msg => {msg.delete(2000)});}) }
+	if(Clear === 2) {
+		message.channel.bulkDelete(Clear).then(() => {
+			message.channel.send(`${args[0]} message a été supprimé !`).then(msg => {msg.delete(1500)});
+			return})}
+	if(Clear > 2) {
+		message.channel.bulkDelete(Clear).then(() => {
+			message.channel.send(`${args[0]} messages ont étés supprimés !`).then(msg => {msg.delete(1500)});
+			return})}
+  }
   
   setTimeout(() => {
     cooldown.delete(message.author.id)
